@@ -1,0 +1,26 @@
+C:\Users\gregp\CLionProjects\ball_clock\cmake-build-debug\ball_clock.exe
+
+Processing 300 cycles on a queue size of 28
+
+Tray Slots    1   2   3   4   5   6   7   8   9  10  11  12
+            --- --- --- --- --- --- --- --- --- --- --- ---
+minute       23  28  -1  -1  -1
+five         17  14  10   9   4  20  13   7  18  15  25  -1
+hour        999  12  21   6  -1  -1  -1  -1  -1  -1  -1  -1
+
+Current TM: 4:57 AM, days = 6
+
+Queue slot   1 contains ball number: 24
+Queue slot   2 contains ball number: 8
+Queue slot   3 contains ball number: 26
+Queue slot   4 contains ball number: 19
+Queue slot   5 contains ball number: 16
+Queue slot   6 contains ball number: 2
+Queue slot   7 contains ball number: 22
+Queue slot   8 contains ball number: 5
+Queue slot   9 contains ball number: 27
+Queue slot  10 contains ball number: 3
+Queue slot  11 contains ball number: 11
+Queue slot  12 contains ball number: 1
+
+Process finished with exit code 0

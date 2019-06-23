@@ -50,3 +50,13 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Directories
+.idea/*
+cmake-build-debug/*
+
+# One off's
+output.gif
+ball_clock
+CMakeLists.txt
+
