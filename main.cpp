@@ -162,7 +162,7 @@ void ballReturn(BallContainer& ballQueue, BallContainer& ballStack, bool isHour)
 		}
 
 		ballStack.pop_back(ball_number);
-		ballQueue.push_back(ball_number);
+		ballQueue.push_front(ball_number);
 	}
 }
 
@@ -213,7 +213,7 @@ void displayQueue(const BallContainer& ballQueue)
 {
 	for(int i = 0; i < ballQueue.size(); i++)
 	{
-		const Ball* ball = ballQueue[i];
+		const Ball* ball = ballQueue[ballQueue.size() - 1 - i];
 		printf("Queue slot %3d contains ball number: %d\n", i + 1, ball->ball_number);
 	}
 }
