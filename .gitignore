@@ -60,3 +60,7 @@ output.gif
 ball_clock
 CMakeLists.txt
 
+# VS intermediates/targets/user-configs
+Debug/
+Release/
+*.user
