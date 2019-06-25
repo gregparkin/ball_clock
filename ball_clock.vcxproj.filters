@@ -11,10 +11,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="queue.h">
+    <ClInclude Include="ball.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="stack.h">
+    <ClInclude Include="container.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -22,10 +22,10 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="queue.cpp">
+    <ClCompile Include="ball.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="stack.cpp">
+    <ClCompile Include="container.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

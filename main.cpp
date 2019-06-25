@@ -18,16 +18,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "queue.h"
-#include "stack.h"
+#include "container.h"
 
 #define NON_MOVEABLE_BALL   999
 #define QUEUE_SIZE          28
 #define CYCLES              300
 
-void displayAll(QUEUE *top, STACK *minute, STACK *five, STACK *hour, float day, int days);
-QUEUE *ballReturn(QUEUE *top, STACK *stack_object, int isHour);
-int cycleComplete(QUEUE *top);
+void displayAll(const BallContainer& ballQueue, const BallContainer& minuteStack, const BallContainer& fiveStack, const BallContainer& hourStack, float day, int days);
+void ballReturn(BallContainer& ballQueue, BallContainer& ballStack, bool isHour);
 
 /**
  * @function int main()
@@ -43,18 +41,19 @@ int main()
     //
     // Initialize the clock to 1:00
     //
-    QUEUE *top_queue = (QUEUE *)NULL;
+
+	BallContainer ballQueue;
 
     for (int i=0; i<QUEUE_SIZE; i++)
     {
-        top_queue = pushQueue(top_queue, i + 1);
+		ballQueue.push_front(i + 1);
     }
 
-    STACK *minute = createStack(5);
-    STACK *five   = createStack(12);
-    STACK *hour   = createStack(12);
+	BallContainer minuteStack;
+	BallContainer fiveStack;
+	BallContainer hourStack;
 
-    addBall(hour, NON_MOVEABLE_BALL);
+	hourStack.push_back(NON_MOVEABLE_BALL);
 
     //
     // Step through the clock
@@ -72,7 +71,7 @@ int main()
         //
         // Cycle the clock by taking one ball from the queue and adding it to the minute stack.
         //
-        if ((top_queue = popQueue(top_queue, &queue_ball_number)) == (QUEUE *)NULL)
+		if(!ballQueue.pop_back(queue_ball_number))
         {
             fprintf(stderr, "Ran out of balls in the queue!\n");
             exit(-1);
@@ -84,21 +83,21 @@ int main()
         if (queue_ball_number == QUEUE_SIZE)
             ++count_cycles;
 
-        if (minute->number_of_balls == 4)
+        if (minuteStack.size() == 4)
         {
-            top_queue = ballReturn(top_queue, minute, 0);
+            ballReturn(ballQueue, minuteStack, false);
 
             //
             // Queue ball drops through hole onto the five minute stack tray
             //
-            if (five->number_of_balls == 11)
+			if(fiveStack.size() == 11)
             {
-                top_queue = ballReturn(top_queue, five, 0);
+				ballReturn(ballQueue, fiveStack, false);
 
                 //
                 // Queue ball drops through hole onto the hour stack tray
                 //
-                if (hour->number_of_balls == 12)
+				if(hourStack.size() == 12)
                 {
                     day += .5;
 
@@ -108,26 +107,26 @@ int main()
                         day = 0;
                     }
 
-                    top_queue = ballReturn(top_queue, hour, 1);  // 1 means don't return ball in 1st slot
+                    ballReturn(ballQueue, hourStack, true);  // true means don't return ball in 1st slot
 
                     //
                     // Push queue ball back onto queue
                     //
-                    top_queue = pushQueue(top_queue, queue_ball_number);
+					ballQueue.push_front(queue_ball_number);
                 }
                 else
                 {
-                    addBall(hour, queue_ball_number);
+					hourStack.push_back(queue_ball_number);
                 }
             }
             else
             {
-                addBall(five, queue_ball_number);
+				fiveStack.push_back(queue_ball_number);
             }
         }
         else
         {
-            addBall(minute, queue_ball_number);
+			minuteStack.push_back(queue_ball_number);
         }
 
     } while (count_cycles < number_of_cycles);
@@ -135,40 +134,88 @@ int main()
     //
     // Display clock settings and ball numbers in each tray slot and then display what is in the queue.
     //
-    displayAll(top_queue, minute, five, hour, day, days);
+    displayAll(ballQueue, minuteStack, fiveStack, hourStack, day, days);
 
     return 0;
 }
 
 /**
- * @function QUEUE *ballReturn(QUEUE *top, STACK *stack_object, int isHour)
- * @brief This function pops all the balls of a stack and returns them to the queue.
+ * @function ballReturn
+ * @brief    This function pops all the balls of a stack and returns them to the queue.
  *
- * @param QUEUE *top            This is the top of the queue
- * @param STACK *stack_object   This is the stack we want to operate on
- * @param int isHour            Is this the hour stack? If yes, don't remove ball in slot 1
- * @return QUEUE *              New pointer to queue top
+ * @param BallContainer& ballQueue   ...
+ * @param BallContainer& ballSTack   ...
+ * @param bool isHour                Is this the hour stack?  If yes, don't remove ball in slot 1
  */
-QUEUE *ballReturn(QUEUE *top, STACK *stack_object, int isHour)
+void ballReturn(BallContainer& ballQueue, BallContainer& ballStack, bool isHour)
 {
-    QUEUE *new_top = top;
     int ball_number;
 
-    while (stack_object != NULL && stack_object->number_of_balls > 0)
-    {
-        if (stack_object->number_of_balls == 1 && isHour)
-        {
-            //
-            // The first ball (999) in the hour tray never moves.
-            //
-            break;
-        }
+	while (ballStack.size() > 0)
+	{
+		if (ballStack.size() == 1 && isHour)
+		{
+			//
+			// The first ball (999) in the hour tray never moves.
+			//
+			break;
+		}
 
-        ball_number = removetBall(stack_object);
-        new_top = pushQueue(new_top, ball_number);
-    }
+		ballStack.pop_back(ball_number);
+		ballQueue.push_front(ball_number);
+	}
+}
 
-    return new_top;
+/**
+ * @function void displayStack(char description[], STACK *stack_object)
+ * @brief Print the contents of how this stack (minute, five, hour) looks. Lined up with displayHeader()
+ *
+ * @param char description[]
+ * @param STACK *stack_object
+ */
+void displayStack(const BallContainer& ballStack, const char* description)
+{
+	printf("%-10s  ", description);
+
+	for (int i = 0; i < ballStack.size(); i++)
+	{
+		printf("%3d ", ballStack[i]->ball_number);
+	}
+
+	printf("\n");
+}
+
+/**
+ * @function void displayTime(STACK *minute, STACK *five, STACK *hour, float day, int days)
+ * @brief Compute the time of day including whether it is AM or PM, and a count of number of days from clock start.
+ *
+ * @param STACK *minute
+ * @param STACK *five
+ * @param STACK *hour
+ * @param float day
+ * @param int days
+ */
+void displayTime(const BallContainer& minuteStack, const BallContainer& fiveStack, const BallContainer& hourStack, float day, int days)
+{
+	int total_minutes = (fiveStack.size() * 5) + minuteStack.size();
+
+	printf("\nCurrent TM: %d:%.2d %s, days = %d\n\n",
+		hourStack.size(), total_minutes, day == 0 ? "AM" : "PM", days);
+}
+
+/**
+ * @function void displayQueue(QUEUE *top)
+ * @brief Print out the balls remaining in the queue.
+ *
+ * @param void
+ */
+void displayQueue(const BallContainer& ballQueue)
+{
+	for(int i = 0; i < ballQueue.size(); i++)
+	{
+		const Ball* ball = ballQueue[ballQueue.size() - 1 - i];
+		printf("Queue slot %3d contains ball number: %d\n", i + 1, ball->ball_number);
+	}
 }
 
 /**
@@ -182,12 +229,15 @@ QUEUE *ballReturn(QUEUE *top, STACK *stack_object, int isHour)
  * @param float day       What part of the day is it 0 is AM, .5 is PM
  * @param int days        Number of days since clock start
  */
-void displayAll(QUEUE *top, STACK *minute, STACK *five, STACK *hour, float day, int days)
+void displayAll(const BallContainer& ballQueue, const BallContainer& minuteStack, const BallContainer& fiveStack, const BallContainer& hourStack, float day, int days)
 {
-    displayHeader();
-    displayStack("minute", minute);
-    displayStack("five", five);
-    displayStack("hour", hour);
-    displayTime(minute, five, hour, day, days);
-    displayQueue(top);
+	printf("\n");
+	printf("Tray Slots    1   2   3   4   5   6   7   8   9  10  11  12\n");
+	printf("            --- --- --- --- --- --- --- --- --- --- --- ---\n");
+
+	displayStack(minuteStack, "minute");
+	displayStack(fiveStack, "five");
+	displayStack(hourStack, "hour");
+	displayTime(minuteStack, fiveStack, hourStack, day, days);
+	displayQueue(ballQueue);
 }
