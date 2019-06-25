@@ -27,7 +27,7 @@ int isStackFull(STACK *stack_object);
 int addBall(STACK *stack_object, int ball_number);
 int removetBall(STACK *stack_object);
 void displayHeader();
-void displayStack(char discription[], STACK *stack_object);
+void displayStack(const char* discription, STACK *stack_object);
 void displayTime(STACK *minute, STACK *five, STACK *hour, float day, int days);
 
 #endif //BALL_CLOCK_STACK_H
